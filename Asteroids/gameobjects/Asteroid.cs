@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,8 +13,9 @@ namespace Asteroids.gameobjects
     public class Asteroid
     {
         // Vector 2
-        Vector2 Pos;
-        Vector2 Velocity;
+        public Vector2 Pos;
+        public Vector2 Velocity;
+        public Vector2 Center;
 
         // Int
         int screenHeight;
@@ -22,10 +24,10 @@ namespace Asteroids.gameobjects
 
         // Float
         public float HitboxRadius;
-        float Size;
+        public float Size;
 
         // Other
-        Texture2D Tex;
+        public Texture2D Tex;
         public Rectangle Hitbox;
 
         public Asteroid(Texture2D tex, Vector2 pos, Vector2 velocity, float size, int height, int width,int margin)
@@ -38,6 +40,8 @@ namespace Asteroids.gameobjects
             screenWidth = width;
             screenMargin = margin;
             Hitbox = new((int)Pos.X, (int)Pos.Y, (int)(Tex.Width * size), (int)(Tex.Height * size));
+            Center = new Vector2(Hitbox.X+Hitbox.Width/2, Hitbox.Y + Hitbox.Height);
+            HitboxRadius = Hitbox.X/2;
         }
 
         public void Update()
@@ -47,6 +51,7 @@ namespace Asteroids.gameobjects
 
             Hitbox.X = (int)Pos.X;
             Hitbox.Y = (int)Pos.Y;
+            Center = new Vector2(Hitbox.X + Hitbox.Width / 2, Hitbox.Y + Hitbox.Height);
         }
 
         public void Draw(SpriteBatch spritebatch)
@@ -67,7 +72,6 @@ namespace Asteroids.gameobjects
                 Pos = new Vector2(Pos.Y, screenHeight);
             if (Pos.Y > screenHeight + screenMargin)
                 Pos = new Vector2(Pos.Y , - screenMargin);
-
         }
     }
 }
