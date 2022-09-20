@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Media;
 using System.Threading;
 using System.Windows.Forms;
 using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
@@ -20,7 +21,7 @@ namespace Asteroids
         public int Margin = 75;
         public int SpawnDelay = 200;
         public int PointsGain = 10;
-        public int MaxAsteroids = 10;
+        public int MaxAsteroids = 20;
         public int Points;
 
         // Bool
@@ -74,8 +75,15 @@ namespace Asteroids
         protected override void Update(GameTime gameTime)
         {
             Window.Title = $"Asteroids | {Points} Points";
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+            if (Keyboard.GetState().IsKeyDown(Keys.R))
+                Restart();
+
+            foreach (Asteroid asteroid in SpawnedAsteroids)
+                asteroid.Update();
 
             CurrentMouseState = Mouse.GetState();
 
@@ -93,9 +101,6 @@ namespace Asteroids
                         break;
                     }
             }
-
-            foreach (Asteroid asteroid in SpawnedAsteroids)
-                asteroid.Update();
 
             foreach(Asteroid asteroid in SpawnedAsteroids)
             {
@@ -134,6 +139,13 @@ namespace Asteroids
             base.Draw(gameTime);
         }
 
+        /// <summary>
+        /// Creates an asteroid
+        /// </summary>
+        /// <param name="asteroidSplit">If the asteroid is to be created of a destroyed asteroid</param>
+        /// <param name="splitAsteroid">Asteroid to be split</param>
+        /// <param name="splitScale">The scale of the split asteroid</param>
+        /// <returns></returns>
         public Asteroid CreateAsteroid(bool asteroidSplit = false, Asteroid splitAsteroid = null, float splitScale = .4f)
         {
             int speedMargin = 5;
@@ -189,6 +201,11 @@ namespace Asteroids
             return spaceshipToSpawn;
         }
 
+        /// <summary>
+        /// Does velocity calcuations of intersecting asteroids
+        /// </summary>
+        /// <param name="obj1">Asteroid 1</param>
+        /// <param name="obj2">Asteroid 2</param>
         public void AsteroidPhysics2D(Asteroid obj1, Asteroid obj2)
         {
             Vector2 velRelative = Vector2.Multiply(obj2.Velocity - obj1.Velocity, obj2.Center - obj1.Center);
@@ -208,6 +225,10 @@ namespace Asteroids
             }
         }
 
+        /// <summary>
+        /// Splits  asteroid
+        /// </summary>
+        /// <param name="asteroidToBeDestroyed">asteroid that's to be destroyed</param>
         public void AsteroidDestroy(Asteroid asteroidToBeDestroyed)
         {
             if (asteroidToBeDestroyed.Size > .4f)
@@ -231,6 +252,24 @@ namespace Asteroids
 
             SpawnedAsteroids.Remove(asteroidToBeDestroyed);
             Points += PointsGain;
+        }
+
+        /// <summary>
+        /// Restarts game
+        /// </summary>
+        public void Restart()
+        {
+            SpawnedAsteroids = new();
+            SpawnedSpaceships = new Spaceship[5];
+
+            GameOver = false;
+            MousePressed = false;
+            AsteroidSpawnReady = true;
+
+            Points = 0;
+
+            for (int x = 0; x < SpawnedSpaceships.Length; x++)
+                SpawnedSpaceships[x] = CreateSpaceship();
         }
     }
 }
